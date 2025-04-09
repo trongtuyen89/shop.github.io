@@ -2,28 +2,38 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</title>
+  <title>🎁 Sản Phẩm Shop 🎁</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</h1>
-    <h2>📦 Đăng Sản Phẩm Mới</h2>
-
-    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="https://shoptuyentran-backend.onrender.com/upload">
-      <input type="text" name="name" placeholder="Tên sản phẩm" required /><br>
-      <input type="number" name="price" placeholder="Giá (VNĐ)" required /><br>
-
-      <label>Ảnh bìa (1 ảnh):</label><br>
-      <input type="file" name="cover" accept="image/*" required /><br>
-
-      <label>Ảnh thêm (tối đa 5 ảnh):</label><br>
-      <input type="file" name="images" accept="image/*" multiple /><br>
-
-      <input type="text" name="zalo" placeholder="Số Zalo người bán" required /><br>
-      <button type="submit">Đăng 🛍️</button>
-    </form>
+    <h1>🎁 Danh sách sản phẩm 🎁</h1>
+    <div id="productList">Đang tải sản phẩm...</div>
   </div>
+
+  <script>
+    fetch('https://shoptuyentran-backend.onrender.com/products')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('productList');
+        list.innerHTML = '';
+        data.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'product';
+          el.innerHTML = `
+            <img src="${item.cover}" alt="Ảnh bìa" width="150"><br>
+            <strong>${item.name}</strong><br>
+            Giá: ${item.price.toLocaleString()} VNĐ<br>
+            <a href="https://zalo.me/${item.zalo}" target="_blank">💬 Mua qua Zalo</a>
+            <hr/>
+          `;
+          list.appendChild(el);
+        });
+      })
+      .catch(err => {
+        document.getElementById('productList').innerText = 'Không thể tải sản phẩm!';
+        console.error(err);
+      });
+  </script>
 </body>
 </html>
