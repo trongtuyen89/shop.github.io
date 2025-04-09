@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Shop Phụ Kiện</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .product { border: 1px solid #ccc; margin-top: 20px; padding: 10px; }
+    img { max-width: 150px; margin: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🎉 Shop Phụ Kiện Sinh Nhật & Cưới</h1>
+
+  <form id="productForm" enctype="multipart/form-data">
+    <input name="name" placeholder="Tên sản phẩm" required><br><br>
+    Ảnh bìa: <input type="file" name="cover" required><br><br>
+    Nhiều ảnh: <input type="file" name="images" multiple><br><br>
+    Giá (VND): <input name="price" type="number" required><br><br>
+    <button type="submit">Đăng</button>
+  </form>
+
+  <hr>
+  <div id="productList"></div>
+
+  <script>
+    const backendURL = 'https://your-backend.onrender.com'; // Sửa sau
+
+    const form = document.getElementById('productForm');
+    const productList = document.getElementById('productList');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const res = await fetch(`${backendURL}/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      const product = await res.json();
+      showProduct(product);
+      form.reset();
+    });
+
+    function showProduct(p) {
+      const div = document.createElement('div');
+      div.className = 'product';
+      div.innerHTML = `
+        <h3>${p.name}</h3>
+        <p>Giá: ${p.price.toLocaleString()} VND</p>
+        <img src="${backendURL}/${p.cover}">
+        <div>${p.images.map(img => `<img src="${backendURL}/${img}">`).join('')}</div>
+        <a href="https://zalo.me/YOUR_ZALO_NUMBER" target="_blank"><button>Mua</button></a>
+      `;
+      productList.prepend(div);
+    }
+
+    fetch(`${backendURL}/products`).then(res => res.json()).then(data => {
+      data.forEach(showProduct);
+    });
+  </script>
+</body>
+</html>
