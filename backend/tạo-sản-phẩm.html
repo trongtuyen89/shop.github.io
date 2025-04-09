@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</title>
+  <style>
+    body {
+      background: #fff5f8;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 600px;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #e91e63;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background-color: #e91e63;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #c2185b;
+    }
+
+    .note {
+      font-size: 13px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</h1>
+
+    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="https://shoptuyentran-backend.onrender.com/upload">
+      <label for="name">Tên sản phẩm</label>
+      <input type="text" name="name" required placeholder="VD: Bóng bay sinh nhật">
+
+      <label for="price">Giá (VNĐ)</label>
+      <input type="number" name="price" required placeholder="VD: 120000">
+
+      <label for="cover">Ảnh bìa</label>
+      <input type="file" name="cover" accept="image/*" required>
+
+      <label for="images">Ảnh thêm (tối đa 5)</label>
+      <input type="file" name="images" accept="image/*" multiple>
+
+      <label for="zalo">Số Zalo người bán</label>
+      <input type="text" name="zalo" required placeholder="VD: 0912345678">
+
+      <label for="password">Mật khẩu đăng bài</label>
+      <input type="password" name="password" required placeholder="Nhập mật khẩu để đăng">
+
+      <button type="submit">📦 Đăng sản phẩm</button>
+    </form>
+  </div>
+</body>
+</html>
