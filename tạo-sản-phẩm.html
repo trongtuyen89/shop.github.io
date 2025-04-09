@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</h1>
+    <h2>📦 Đăng Sản Phẩm Mới</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="https://shoptuyentran-backend.onrender.com/upload">
+      <input type="text" name="name" placeholder="Tên sản phẩm" required /><br>
+      <input type="number" name="price" placeholder="Giá (VNĐ)" required /><br>
+
+      <label>Ảnh bìa (1 ảnh):</label><br>
+      <input type="file" name="cover" accept="image/*" required /><br>
+
+      <label>Ảnh thêm (tối đa 5 ảnh):</label><br>
+      <input type="file" name="images" accept="image/*" multiple /><br>
+
+      <input type="text" name="zalo" placeholder="Số Zalo người bán" required /><br>
+      <button type="submit">Đăng 🛍️</button>
+    </form>
+  </div>
+</body>
+</html>
