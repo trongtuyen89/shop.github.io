@@ -1,59 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <title>Shop NTR Khang</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🎉 Shop Phụ Kiện Tiệc Cưới – Sinh Nhật 🎉</h1>
+  <h1>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</h1>
 
-  <form id="form">
-    <input type="text" name="name" placeholder="Tên sản phẩm" required><br>
-    <input type="file" name="thumbnail" accept="image/*" required><br>
-    <input type="file" name="images" accept="image/*" multiple><br>
-    <input type="number" name="price" placeholder="Giá (VNĐ)" required><br>
+  <form id="product-form">
+    <h2>📦 Đăng Sản Phẩm Mới</h2>
+    <input type="text" id="name" placeholder="Tên sản phẩm" required />
+    <input type="number" id="price" placeholder="Giá (VNĐ)" required />
+    <input type="url" id="cover" placeholder="Link ảnh bìa (URL)" required />
+    <input type="url" id="img1" placeholder="Ảnh thêm 1 (tuỳ chọn)" />
+    <input type="url" id="img2" placeholder="Ảnh thêm 2 (tuỳ chọn)" />
+    <input type="url" id="img3" placeholder="Ảnh thêm 3 (tuỳ chọn)" />
+    <input type="url" id="img4" placeholder="Ảnh thêm 4 (tuỳ chọn)" />
+    <input type="url" id="img5" placeholder="Ảnh thêm 5 (tuỳ chọn)" />
+    <input type="text" id="zalo" placeholder="Số Zalo người bán" required />
     <button type="submit">Đăng</button>
   </form>
 
   <div id="product-list"></div>
 
-  <script>
-    const backendURL = 'https://shoptuyentran-backend.onrender.com';
-
-    // Tải danh sách sản phẩm
-    fetch(`${backendURL}/products`)
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('product-list');
-        data.reverse().forEach(p => {
-          const div = document.createElement('div');
-          div.innerHTML = `
-            <img src="${backendURL}/${p.thumbnail}" width="200">
-            <h3>${p.name}</h3>
-            <p>Giá: ${Number(p.price).toLocaleString()} VNĐ</p>
-            <a href="https://zalo.me/0123456789" target="_blank">
-              <button>Mua</button>
-            </a>
-          `;
-          list.appendChild(div);
-        });
-      });
-
-    // Gửi sản phẩm mới
-    document.getElementById('form').onsubmit = async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const data = new FormData(form);
-
-      const res = await fetch(`${backendURL}/add`, {
-        method: 'POST',
-        body: data
-      });
-
-      const result = await res.json();
-      alert(result.message);
-      location.reload();
-    };
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
