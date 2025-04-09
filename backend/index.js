@@ -51,3 +51,17 @@ app.get('/products', (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Server đang chạy tại http://localhost:${port}`);
 });
+app.post('/upload', upload.array('images', 5), (req, res) => {
+  console.log(req.files); // kiểm tra ảnh có nhận được không
+  console.log(req.body); // kiểm tra thông tin có đúng không
+
+  // nếu có lỗi sẽ hiện ở đây
+  try {
+    // xử lý logic lưu ảnh & dữ liệu
+    res.send('Upload thành công');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Có lỗi xảy ra trên server');
+  }
+});
+
