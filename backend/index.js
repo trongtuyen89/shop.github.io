@@ -1,52 +1,53 @@
 const express = require('express');
-const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
+const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.static('public')); // Cho phép hiển thị trang chủ nếu đặt frontend ở backend
 app.use('/uploads', express.static('uploads'));
 
-// Lưu ảnh với Multer
-const upload = multer({ dest: 'uploads/' });
-
-// Đọc danh sách sản phẩm
-app.get('/products', (req, res) => {
-  const data = fs.readFileSync('data.json');
-  res.json(JSON.parse(data));
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
 
-// Đăng sản phẩm mới
-app.post('/add-product', upload.fields([
+const upload = multer({ storage: storage });
+
+app.post('/upload', upload.fields([
   { name: 'cover', maxCount: 1 },
   { name: 'images', maxCount: 5 }
 ]), (req, res) => {
-  const { name, price } = req.body;
-  const cover = req.files['cover'][0].filename;
-  const images = req.files['images']?.map(img => img.filename) || [];
+  const { name, price, zalo, password } = req.body;
 
-  const newProduct = {
-    id: Date.now(),
-    name,
-    price,
-    cover,
-    images
-  };
+  const correctPassword = 'admin123'; // 🔒 Đổi mật khẩu tại đây
+  if (password !== correctPassword) {
+    return res.status(403).send('❌ Mật khẩu sai! Không được phép đăng.');
+  }
 
-  const data = JSON.parse(fs.readFileSync('data.json'));
-  data.push(newProduct);
-  fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
+  const cover = req.files['cover']?.[0]?.path || '';
+  const images = (req.files['images'] || []).map(file => file.path);
 
-  res.json({ message: 'OK', product: newProduct });
+  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+  data.push({ name, price: parseInt(price), zalo, cover, images });
+  fs.writeFileSync('./data.json', JSON.stringify(data, null, 2));
+
+  res.send('✅ Đăng sản phẩm thành công!');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.get('/products', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+  res.json(data);
 });
-app.get('/', (req, res) => {
-  res.send('Server đang chạy ngon lành 🚀');
+
+app.listen(port, () => {
+  console.log(`✅ Server đang chạy tại http://localhost:${port}`);
 });
