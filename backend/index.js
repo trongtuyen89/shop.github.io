@@ -1,26 +1,53 @@
-const backendURL = 'https://shoptuyentran-backend.onrender.com';
+const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
+const cors = require('cors');
+const path = require('path');
 
-fetch(`${backendURL}/products`)
-  .then(res => res.json())
-  .then(products => {
-    const list = document.getElementById('product-list');
-    list.innerHTML = ''; // clear loading text
+const app = express();
+const port = process.env.PORT || 3000;
 
-    products.reverse().forEach(product => {
-      const div = document.createElement('div');
-      div.className = 'product';
+app.use(cors());
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
-      div.innerHTML = `
-        <img src="${backendURL}/${product.cover}" alt="Ảnh bìa">
-        <h3>${product.name}</h3>
-        <p>Giá: ${product.price.toLocaleString()} VNĐ</p>
-        <a href="https://zalo.me/${product.zalo}" target="_blank">💬 Mua qua Zalo</a>
-      `;
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
 
-      list.appendChild(div);
-    });
-  })
-  .catch(error => {
-    document.getElementById('product-list').innerHTML = '❌ Lỗi khi tải sản phẩm!';
-    console.error(error);
-  });
+app.post('/upload', upload.fields([
+  { name: 'cover', maxCount: 1 },
+  { name: 'images', maxCount: 5 }
+]), (req, res) => {
+  const { name, price, zalo, password } = req.body;
+
+  const correctPassword = '2802'; // 👈 Sửa đúng mật khẩu ở đây
+  if (password !== correctPassword) {
+    return res.status(403).send('❌ Mật khẩu sai! Không được phép đăng.');
+  }
+
+  const cover = req.files['cover']?.[0]?.path || '';
+  const images = (req.files['images'] || []).map(file => file.path);
+
+  const dataPath = './data.json';
+  const data = fs.existsSync(dataPath) ? JSON.parse(fs.readFileSync(dataPath, 'utf-8')) : [];
+  data.push({ name, price: parseInt(price), zalo, cover, images });
+  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+
+  res.send('✅ Đăng sản phẩm thành công!');
+});
+
+app.get('/products', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+  res.json(data);
+});
+
+app.listen(port, () => {
+  console.log(`✅ Server đang chạy tại http://localhost:${port}`);
+});
