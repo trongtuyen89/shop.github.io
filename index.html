@@ -3,27 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shop</title>
+  <title>Shop NTR Khang</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</h1>
+  <div class="container">
+    <h1>🎉 Đăng sản phẩm phụ kiện sinh nhật & cưới</h1>
+    <form id="uploadForm">
+      <input type="text" id="name" placeholder="Tên sản phẩm" required /><br>
+      <input type="number" id="price" placeholder="Giá (VNĐ)" required /><br>
+      
+      <label>Ảnh bìa:</label>
+      <input type="file" id="cover" accept="image/*" required /><br>
+      
+      <label>Ảnh phụ (tối đa 5):</label>
+      <input type="file" id="moreImages" accept="image/*" multiple /><br>
+      
+      <button type="submit">📤 Đăng sản phẩm</button>
+    </form>
 
-  <form id="product-form">
-    <h2>📦 Đăng Sản Phẩm Mới</h2>
-    <input type="text" id="name" placeholder="Tên sản phẩm" required />
-    <input type="number" id="price" placeholder="Giá (VNĐ)" required />
-    <input type="url" id="cover" placeholder="Link ảnh bìa (URL)" required />
-    <input type="url" id="img1" placeholder="Ảnh thêm 1 (tuỳ chọn)" />
-    <input type="url" id="img2" placeholder="Ảnh thêm 2 (tuỳ chọn)" />
-    <input type="url" id="img3" placeholder="Ảnh thêm 3 (tuỳ chọn)" />
-    <input type="url" id="img4" placeholder="Ảnh thêm 4 (tuỳ chọn)" />
-    <input type="url" id="img5" placeholder="Ảnh thêm 5 (tuỳ chọn)" />
-    <input type="text" id="zalo" placeholder="Số Zalo người bán" required />
-    <button type="submit">Đăng</button>
-  </form>
+    <hr />
 
-  <div id="product-list"></div>
+    <h2>🛍️ Sản phẩm mới nhất</h2>
+    <div id="productList" class="products"></div>
+  </div>
 
   <script src="script.js"></script>
 </body>
