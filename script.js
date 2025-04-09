@@ -1,69 +1,59 @@
-// Lấy danh sách sản phẩm từ localStorage (nếu có)
-let products = JSON.parse(localStorage.getItem("products")) || [];
+const backendURL = "https://shoptuyentran-backend.onrender.com";
 
-const form = document.getElementById("product-form");
-const productList = document.getElementById("product-list");
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-// Hàm hiển thị sản phẩm ra trang chủ
-function renderProducts() {
-  productList.innerHTML = "";
+  const name = document.getElementById('name').value;
+  const price = document.getElementById('price').value;
+  const cover = document.getElementById('cover').files[0];
+  const moreImages = [...document.getElementById('moreImages').files].slice(0, 5);
 
-  products.forEach((product, index) => {
-    const div = document.createElement("div");
+  const formData = new FormData();
+  formData.append('images', cover);
+  moreImages.forEach(img => formData.append('images', img));
 
-    let gallery = "";
-    for (let img of product.images) {
-      if (img) {
-        gallery += `<img src="${img}" alt="Ảnh sản phẩm">`;
-      }
-    }
+  const uploadRes = await fetch(`${backendURL}/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  const { urls } = await uploadRes.json();
 
+  const product = {
+    name,
+    price,
+    cover: urls[0],
+    images: urls.slice(1),
+    zalo: "https://zalo.me/0123456789" // 👈 Thay bằng link Zalo người bán
+  };
+
+  await fetch(`${backendURL}/products`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(product)
+  });
+
+  alert("✅ Đăng sản phẩm thành công!");
+  e.target.reset();
+  loadProducts();
+});
+
+async function loadProducts() {
+  const res = await fetch(`${backendURL}/products`);
+  const data = await res.json();
+  const productList = document.getElementById('productList');
+  productList.innerHTML = '';
+
+  data.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'product';
     div.innerHTML = `
-      <img src="${product.cover}" alt="Ảnh bìa sản phẩm">
-      <h3>${product.name}</h3>
-      <p><strong>Giá:</strong> ${Number(product.price).toLocaleString()} VND</p>
-      <div>${gallery}</div>
-      <button onclick="window.open('https://zalo.me/${product.zalo}', '_blank')">Mua</button>
+      <img src="${p.cover}" />
+      <h3>${p.name}</h3>
+      <p><strong>Giá:</strong> ${Number(p.price).toLocaleString()}đ</p>
+      <button onclick="window.open('${p.zalo}', '_blank')">💬 Mua</button>
     `;
     productList.appendChild(div);
   });
 }
 
-// Khi người dùng submit form
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById("name").value.trim();
-  const price = document.getElementById("price").value.trim();
-  const cover = document.getElementById("cover").value.trim();
-  const zalo = document.getElementById("zalo").value.trim();
-  const images = [
-    document.getElementById("img1").value.trim(),
-    document.getElementById("img2").value.trim(),
-    document.getElementById("img3").value.trim(),
-    document.getElementById("img4").value.trim(),
-    document.getElementById("img5").value.trim()
-  ];
-
-  if (!name || !price || !cover || !zalo) {
-    alert("Vui lòng điền đầy đủ thông tin bắt buộc.");
-    return;
-  }
-
-  const newProduct = {
-    name,
-    price,
-    cover,
-    zalo,
-    images
-  };
-
-  products.unshift(newProduct); // thêm sản phẩm mới lên đầu
-  localStorage.setItem("products", JSON.stringify(products)); // lưu lại
-
-  form.reset();
-  renderProducts();
-});
-
-// Hiển thị ngay khi vào trang
-renderProducts();
+loadProducts();
