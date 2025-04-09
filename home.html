@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>🎁 Sản Phẩm Shop NTR 🎁</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎁 Danh sách sản phẩm 🎁</h1>
+    <div id="productList">Đang tải sản phẩm...</div>
+  </div>
+
+  <script>
+    fetch('https://shoptuyentran-backend.onrender.com/products')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('productList');
+        list.innerHTML = '';
+        data.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'product';
+          el.innerHTML = `
+            <img src="${item.cover}" alt="Ảnh bìa" width="150"><br>
+            <strong>${item.name}</strong><br>
+            Giá: ${item.price.toLocaleString()} VNĐ<br>
+            <a href="https://zalo.me/${item.zalo}" target="_blank">💬 Mua qua Zalo</a>
+            <hr/>
+          `;
+          list.appendChild(el);
+        });
+      })
+      .catch(err => {
+        document.getElementById('productList').innerText = 'Không thể tải sản phẩm!';
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
