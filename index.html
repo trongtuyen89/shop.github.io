@@ -3,32 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shop NTR Khang</title>
+  <title>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>🎉 Đăng sản phẩm phụ kiện sinh nhật & cưới</h1>
-    <form id="uploadForm">
-      <input type="text" id="name" placeholder="Tên sản phẩm" required /><br>
-      <input type="number" id="price" placeholder="Giá (VNĐ)" required /><br>
-      
-      <label>Ảnh bìa:</label>
-      <input type="file" id="cover" accept="image/*" required /><br>
-      
-      <label>Ảnh phụ (tối đa 5):</label>
-      <input type="file" id="moreImages" accept="image/*" multiple /><br>
-      
-      <button type="submit">📤 Đăng sản phẩm</button>
+    <h1>🎉 Shop Phụ Kiện Tiệc Cưới & Sinh Nhật 🎁</h1>
+    <h2>📦 Đăng Sản Phẩm Mới</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="https://shoptuyentran-backend.onrender.com/upload">
+      <input type="text" name="name" placeholder="Tên sản phẩm" required /><br>
+      <input type="number" name="price" placeholder="Giá (VNĐ)" required /><br>
+
+      <label>Ảnh bìa (1 ảnh):</label><br>
+      <input type="file" name="cover" accept="image/*" required /><br>
+
+      <label>Ảnh thêm (tối đa 5 ảnh):</label><br>
+      <input type="file" name="images" accept="image/*" multiple /><br>
+
+      <input type="text" name="zalo" placeholder="Số Zalo người bán" required /><br>
+      <button type="submit">Đăng 🛍️</button>
     </form>
-
-    <hr />
-
-    <h2>🛍️ Sản phẩm mới nhất</h2>
-    <div id="productList" class="products"></div>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
- 
