@@ -1,59 +1,53 @@
-const backendURL = "https://shoptuyentran-backend.onrender.com";
+const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
+const cors = require('cors');
+const path = require('path');
 
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
+const app = express();
+const port = process.env.PORT || 3000;
 
-  const name = document.getElementById('name').value;
-  const price = document.getElementById('price').value;
-  const cover = document.getElementById('cover').files[0];
-  const moreImages = [...document.getElementById('moreImages').files].slice(0, 5);
+app.use(cors());
+app.use(express.static('public')); // Cho phép hiển thị trang chủ nếu đặt frontend ở backend
+app.use('/uploads', express.static('uploads'));
 
-  const formData = new FormData();
-  formData.append('images', cover);
-  moreImages.forEach(img => formData.append('images', img));
-
-  const uploadRes = await fetch(`${backendURL}/upload`, {
-    method: 'POST',
-    body: formData
-  });
-  const { urls } = await uploadRes.json();
-
-  const product = {
-    name,
-    price,
-    cover: urls[0],
-    images: urls.slice(1),
-    zalo: "https://zalo.me/0123456789" // 👈 Thay bằng link Zalo người bán
-  };
-
-  await fetch(`${backendURL}/products`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(product)
-  });
-
-  alert("✅ Đăng sản phẩm thành công!");
-  e.target.reset();
-  loadProducts();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
 
-async function loadProducts() {
-  const res = await fetch(`${backendURL}/products`);
-  const data = await res.json();
-  const productList = document.getElementById('productList');
-  productList.innerHTML = '';
+const upload = multer({ storage: storage });
 
-  data.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'product';
-    div.innerHTML = `
-      <img src="${p.cover}" />
-      <h3>${p.name}</h3>
-      <p><strong>Giá:</strong> ${Number(p.price).toLocaleString()}đ</p>
-      <button onclick="window.open('${p.zalo}', '_blank')">💬 Mua</button>
-    `;
-    productList.appendChild(div);
-  });
-}
+app.post('/upload', upload.fields([
+  { name: 'cover', maxCount: 1 },
+  { name: 'images', maxCount: 5 }
+]), (req, res) => {
+  const { name, price, zalo, password } = req.body;
 
-loadProducts();
+  const correctPassword = 'admin123'; // 🔒 Đổi mật khẩu tại đây
+  if (password !== correctPassword) {
+    return res.status(403).send('❌ Mật khẩu sai! Không được phép đăng.');
+  }
+
+  const cover = req.files['cover']?.[0]?.path || '';
+  const images = (req.files['images'] || []).map(file => file.path);
+
+  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+  data.push({ name, price: parseInt(price), zalo, cover, images });
+  fs.writeFileSync('./data.json', JSON.stringify(data, null, 2));
+
+  res.send('✅ Đăng sản phẩm thành công!');
+});
+
+app.get('/products', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+  res.json(data);
+});
+
+app.listen(port, () => {
+  console.log(`✅ Server đang chạy tại http://localhost:${port}`);
+});
