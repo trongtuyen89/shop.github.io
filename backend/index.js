@@ -47,3 +47,6 @@ app.post('/add-product', upload.fields([
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+app.get('/', (req, res) => {
+  res.send('Server đang chạy ngon lành 🚀');
+});
