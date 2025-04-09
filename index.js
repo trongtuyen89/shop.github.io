@@ -52,3 +52,7 @@ app.use('/uploads', express.static(uploadFolder));
 app.listen(PORT, () => {
   console.log(`✅ Server is running at http://localhost:${PORT}`);
 });
+app.get('/products', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+  res.json(data);
+});
