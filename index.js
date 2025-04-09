@@ -1,58 +1,66 @@
 const express = require('express');
 const multer = require('multer');
-const cors = require('cors');
-const fs = require('fs-extra');
+const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
-// Tạo folder uploads nếu chưa có
-const uploadFolder = path.join(__dirname, 'uploads');
-fs.ensureDirSync(uploadFolder);
-
-// Cấu hình multer
+// Cấu hình lưu file upload
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadFolder),
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, unique + ext);
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
-// API upload ảnh
-app.post('/upload', upload.array('images', 6), (req, res) => {
-  const urls = req.files.map(file => `${req.protocol}://${req.get('host')}/uploads/${file.filename}`);
-  res.json({ urls });
-});
+// Tạo file data.json nếu chưa có
+const dataPath = 'data.json';
+if (!fs.existsSync(dataPath)) {
+  fs.writeFileSync(dataPath, '[]');
+}
 
-// API lấy danh sách sản phẩm
-app.get('/products', async (req, res) => {
-  const data = await fs.readJson('./data.json').catch(() => []);
-  res.json(data);
-});
+// Route đăng sản phẩm
+app.post('/upload', upload.fields([
+  { name: 'cover', maxCount: 1 },
+  { name: 'images', maxCount: 5 }
+]), (req, res) => {
+  const { name, price, zalo, password } = req.body;
 
-// API đăng sản phẩm
-app.post('/products', async (req, res) => {
-  const newProduct = req.body;
-  const products = await fs.readJson('./data.json').catch(() => []);
+  // Kiểm tra mật khẩu
+  if (password !== '2802') {
+    return res.status(403).send('Sai mật khẩu');
+  }
+
+  const cover = req.files['cover']?.[0]?.path || '';
+  const images = (req.files['images'] || []).map(file => file.path);
+
+  const newProduct = {
+    name,
+    price,
+    zalo,
+    cover,
+    images,
+    createdAt: new Date().toISOString()
+  };
+
+  // Lưu vào data.json
+  const products = JSON.parse(fs.readFileSync(dataPath));
   products.unshift(newProduct);
-  await fs.writeJson('./data.json', products);
-  res.json({ success: true });
-});
+  fs.writeFileSync(dataPath, JSON.stringify(products, null, 2));
 
-// Cung cấp ảnh tĩnh
-app.use('/uploads', express.static(uploadFolder));
+  res.send('Đăng sản phẩm thành công!');
+});
 
 app.listen(PORT, () => {
-  console.log(`✅ Server is running at http://localhost:${PORT}`);
-});
-app.get('/products', (req, res) => {
-  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
-  res.json(data);
+  console.log(`Server is running on port ${PORT}`);
 });
