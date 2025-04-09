@@ -1,42 +1,62 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
-const path = require('path');
 const cors = require('cors');
+const path = require('path');
 
-const app = express();
+const app = express(); // ✅ Dòng này rất quan trọng!
 const port = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('uploads')); // Cho phép hiển thị ảnh tĩnh
 
-// Cấu hình thư mục lưu ảnh
+// ⚠️ Không được khai báo app.post trước dòng trên!
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = 'uploads/';
-    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
-    cb(null, uploadPath);
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
   }
 });
-const upload = multer({ storage });
 
-// ✅ ROUTE POST /upload
-app.post('/upload', upload.array('images', 6), (req, res) => {
+const upload = multer({ storage: storage });
+
+app.post('/upload', upload.fields([
+  { name: 'cover', maxCount: 1 },
+  { name: 'images', maxCount: 5 }
+]), (req, res) => {
+  const { name, price, zalo, password } = req.body;
+
+  const correctPassword = '2802';
+  if (password !== correctPassword) {
+    return res.status(403).send('❌ Mật khẩu sai! Không được phép đăng.');
+  }
+
   try {
-    const files = req.files.map(file => `/uploads/${file.filename}`);
-    res.json({ success: true, urls: files });
+    const cover = req.files['cover']?.[0]?.path || '';
+    const images = (req.files['images'] || []).map(file => file.path);
+
+    const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+    data.push({ name, price: parseInt(price), zalo, cover, images });
+    fs.writeFileSync('./data.json', JSON.stringify(data, null, 2));
+
+    res.send('✅ Đăng sản phẩm thành công!');
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Upload failed' });
+    res.status(500).send('❌ Lỗi server khi xử lý đăng sản phẩm.');
   }
 });
 
-// Khởi động server
+app.get('/products', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+  res.json(data);
+});
+
 app.listen(port, () => {
-  console.log(`Server đang chạy tại http://localhost:${port}`);
+  console.log(`✅ Server đang chạy tại http://localhost:${port}`);
 });
